@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>黑屏·点击·宋体 · 名字与新年（逐次出现文字与图片）</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            font-family: 'SimSun', '宋体', 'Songti SC', serif;
+            overflow: hidden;
+        }
+
+        .screen {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000000;
+        }
+
+        .word {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+            text-align: center;
+            pointer-events: none;
+            line-height: 1.2;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+            text-shadow: 0 0 20px currentColor;
+        }
+
+        .word-welcome {
+            font-size: clamp(4rem, 18vw, 7rem);
+            color: #ffe066;
+        }
+        .word-fengli {
+            font-size: clamp(3.5rem, 14vw, 5.5rem);
+            color: #9fc9f0;
+        }
+        .word-lili {
+            font-size: clamp(3.5rem, 14vw, 5.5rem);
+            color: #cfb0f0;
+        }
+        .word-apple {
+            font-size: clamp(4rem, 16vw, 6.5rem);
+            color: #b3e6a0;
+        }
+        .word-yuancai {
+            font-size: clamp(3.5rem, 14vw, 5.5rem);
+            color: #fcc2b3;
+        }
+        .word-yanxia {
+            font-size: clamp(3.5rem, 14vw, 5.5rem);
+            color: #f9cb9c;
+        }
+        .word-newyear {
+            font-size: clamp(4.2rem, 18vw, 7.2rem);
+            color: #ffb851;
+        }
+
+        .image-container {
+            position: absolute;
+            top: 70%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            gap: 5vw;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+            width: 80%;
+            max-width: 800px;
+            flex-wrap: wrap;
+        }
+
+        .word-image {
+            max-width: 35vw;
+            max-height: 30vh;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 255, 255, 0.1);
+            background: rgba(0,0,0,0.3);
+        }
+
+        .hint {
+            position: absolute;
+            bottom: 35px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-family: 'SimSun', '宋体', serif;
+            font-size: 1.2rem;
+            letter-spacing: 0.2rem;
+            color: rgba(180, 160, 130, 0.28);
+            text-shadow: 0 0 8px rgba(255, 210, 150, 0.2);
+            pointer-events: none;
+            transition: opacity 0.25s;
+            z-index: 10;
+        }
+        .hint span {
+            border-bottom: 1px dashed rgba(200, 180, 140, 0.3);
+            padding-bottom: 2px;
+        }
+        .hint-hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .audio-control {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(40, 40, 40, 0.6);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(220, 180, 100, 0.3);
+            color: #ffda99;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 30;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            user-select: none;
+            pointer-events: auto;
+        }
+        .audio-control:hover {
+            background: rgba(70, 60, 40, 0.8);
+            border-color: #ffb347;
+            transform: scale(1.05);
+        }
+        .audio-control.muted {
+            color: #aaa;
+            border-color: #666;
+            background: rgba(30, 30, 30, 0.8);
+        }
+        .audio-control span {
+            line-height: 1;
+            margin-top: -2px;
+        }
+
+        @media (max-width: 600px) {
+            .word {
+                top: 35%;
+            }
+            .image-container {
+                top: 65%;
+                gap: 3vw;
+            }
+            .word-image {
+                max-width: 40vw;
+                max-height: 25vh;
+            }
+            .hint {
+                font-size: 1rem;
+                bottom: 25px;
+            }
+            .audio-control {
+                width: 42px;
+                height: 42px;
+                font-size: 20px;
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="screen" id="screen">
+        <!-- 词语 -->
+        <div class="word word-welcome" id="word-0">欢迎</div>
+        <div class="word word-fengli" id="word-1">风离</div>
+        <div class="word word-lili" id="word-2">黎离</div>
+        <div class="word word-apple" id="word-3">🍏</div>
+        <div class="word word-yuancai" id="word-4">沅采</div>
+        <div class="word word-yanxia" id="word-5">烟霞</div>
+        <div class="word word-newyear" id="word-6">新年快乐！</div>
+
+        <!-- 图片容器：两张图片 -->
+        <div class="image-container" id="imageContainer">
+            <img id="img1" class="word-image" src="" alt="">
+            <img id="img2" class="word-image" src="" alt="">
+        </div>
+
+        <div class="hint" id="tapHint"><span>⚡ 点击任意处 ⚡</span></div>
+        <div class="audio-control" id="audioControl" title="开启/关闭背景音乐"><span>🔇</span></div>
+    </div>
+
+    <!-- 背景音乐（同时支持MP3和FLAC） -->
+    <audio id="bgMusic" loop preload="auto" style="display: none;">
+        <source src="陶典,Hanser,花玲 - 未来再见.mp3" type="audio/mpeg">
+        <source src="陶典,Hanser,花玲 - 未来再见.flac" type="audio/flac">
+        您的浏览器不支持 audio 元素。
+    </audio>
+
+    <script>
+        (function() {
+            // ----- 获取元素 -----
+            const words = [
+                document.getElementById('word-0'),
+                document.getElementById('word-1'),
+                document.getElementById('word-2'),
+                document.getElementById('word-3'),
+                document.getElementById('word-4'),
+                document.getElementById('word-5'),
+                document.getElementById('word-6')
+            ];
+            const img1 = document.getElementById('img1');
+            const img2 = document.getElementById('img2');
+            const imageContainer = document.getElementById('imageContainer');
+            const hint = document.getElementById('tapHint');
+            const screen = document.getElementById('screen');
+            const audio = document.getElementById('bgMusic');
+            const audioCtrl = document.getElementById('audioControl');
+
+            // ----- 常量 -----
+            const totalWords = words.length;
+            // 图片映射：每个词语索引对应的图片文件名（数字部分），空数组表示无图片
+            const imageMap = [
+                [],                // 0: 欢迎
+                [1, 2],            // 1: 风离
+                [3, 4],            // 2: 黎离
+                [5, 6],            // 3: 🍏
+                [7, 8],            // 4: 沅采
+                [9, 10],           // 5: 烟霞
+                []                 // 6: 新年快乐
+            ];
+
+            // ----- 状态变量 -----
+            let currentIndex = -1;          // -1 表示黑屏无词
+            let showImages = false;          // 当前是否显示图片（仅对有图的词有意义）
+            let isLocked = false;
+            let fadeTimeout = null;
+            let isMuted = true;
+
+            // ----- 辅助函数 -----
+            function hideHintPermanently() {
+                hint.classList.add('hint-hidden');
+            }
+
+            function showHint() {
+                hint.classList.remove('hint-hidden');
+            }
+
+            function setWordOpacity(index, opacityValue) {
+                if (index >= 0 && index < totalWords) {
+                    words[index].style.opacity = opacityValue;
+                }
+            }
+
+            function setImageContainerOpacity(opacityValue) {
+                imageContainer.style.opacity = opacityValue;
+            }
+
+            function hideAllWords() {
+                for (let i = 0; i < totalWords; i++) {
+                    words[i].style.opacity = '0';
+                }
+            }
+
+            // 预加载所有图片（提升体验）
+            function preloadImages() {
+                for (let i = 1; i <= 10; i++) {
+                    const img = new Image();
+                    img.src = i + '.png';
+                }
+            }
+
+            // ----- 音频初始化 -----
+            function initAudio() {
+                audio.muted = true;
+                isMuted = true;
+                audioCtrl.innerHTML = '<span>🔇</span>';
+                audioCtrl.classList.add('muted');
+
+                audio.addEventListener('error', function(e) {
+                    console.warn('音频加载失败，请检查文件是否与HTML放在同一目录，且文件名正确。');
+                }, { once: true });
+            }
+
+            function tryPlayAudio() {
+                if (!audio.paused) return;
+                let playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log('音频自动播放被阻止，请点击控制按钮手动播放:', error);
+                    });
+                }
+            }
+
+            function toggleMute() {
+                if (audio.muted) {
+                    audio.muted = false;
+                    isMuted = false;
+                    audioCtrl.innerHTML = '<span>🔊</span>';
+                    audioCtrl.classList.remove('muted');
+                } else {
+                    audio.muted = true;
+                    isMuted = true;
+                    audioCtrl.innerHTML = '<span>🔇</span>';
+                    audioCtrl.classList.add('muted');
+                }
+            }
+
+            // ----- 核心点击逻辑（状态机）-----
+            function handleScreenClick() {
+                if (isLocked) return;
+
+                // 首次点击尝试播放音频
+                if (currentIndex === -1) {
+                    tryPlayAudio();
+                }
+
+                // 计算目标状态
+                let targetIndex = currentIndex;
+                let targetShowImages = false;
+
+                if (currentIndex === -1) {
+                    // 黑屏 -> 显示第一个词（欢迎）
+                    targetIndex = 0;
+                    targetShowImages = false;
+                } else {
+                    const hasImages = imageMap[currentIndex] && imageMap[currentIndex].length > 0;
+                    if (hasImages) {
+                        if (!showImages) {
+                            // 当前只显示文字，目标显示文字+图片
+                            targetIndex = currentIndex;
+                            targetShowImages = true;
+                        } else {
+                            // 当前显示文字+图片，目标切换到下一个词（文字）
+                            targetIndex = (currentIndex + 1) % totalWords;
+                            targetShowImages = false;
+                        }
+                    } else {
+                        // 当前词无图片，直接切换到下一个词
+                        targetIndex = (currentIndex + 1) % totalWords;
+                        targetShowImages = false;
+                    }
+                }
+
+                // 锁定，防止连点
+                isLocked = true;
+
+                // 淡出当前内容（文字 + 图片）
+                if (currentIndex !== -1) {
+                    setWordOpacity(currentIndex, '0');
+                }
+                setImageContainerOpacity('0');
+
+                // 延时淡入目标内容
+                if (fadeTimeout) clearTimeout(fadeTimeout);
+                fadeTimeout = setTimeout(() => {
+                    // 更新图片 src（根据目标索引和是否显示图片）
+                    if (targetShowImages) {
+                        // 要显示图片，设置src
+                        const nums = imageMap[targetIndex] || [];
+                        if (nums.length >= 2) {
+                            img1.src = nums[0] + '.png';
+                            img2.src = nums[1] + '.png';
+                        } else {
+                            img1.src = '';
+                            img2.src = '';
+                        }
+                    } else {
+                        // 不显示图片，清空src避免显示旧图
+                        img1.src = '';
+                        img2.src = '';
+                    }
+
+                    // 淡入目标词语
+                    if (targetIndex !== -1) {
+                        setWordOpacity(targetIndex, '1');
+                    }
+                    // 淡入图片容器（透明度为1，但src可能为空，不影响视觉效果）
+                    setImageContainerOpacity('1');
+
+                    // 更新状态
+                    currentIndex = targetIndex;
+                    showImages = targetShowImages;
+
+                    // 提示永久隐藏（一旦有过词语）
+                    if (currentIndex !== -1) {
+                        hideHintPermanently();
+                    }
+
+                    isLocked = false;
+                    fadeTimeout = null;
+                }, 220); // 黑屏间隙略大于过渡时间
+            }
+
+            // ----- 初始化黑屏 -----
+            function initBlack() {
+                hideAllWords();
+                setImageContainerOpacity('0');
+                img1.src = '';
+                img2.src = '';
+                currentIndex = -1;
+                showImages = false;
+                showHint();
+                if (fadeTimeout) {
+                    clearTimeout(fadeTimeout);
+                    fadeTimeout = null;
+                }
+                isLocked = false;
+                initAudio();
+                preloadImages(); // 预加载所有图片
+            }
+
+            // ----- 事件监听 -----
+            screen.addEventListener('click', function(e) {
+                if (e.target === audioCtrl || audioCtrl.contains(e.target)) {
+                    return;
+                }
+                handleScreenClick();
+            });
+
+            screen.addEventListener('touchstart', function(e) {
+                if (e.target === audioCtrl || audioCtrl.contains(e.target)) {
+                    return;
+                }
+                e.preventDefault();
+                handleScreenClick();
+            }, { passive: false });
+
+            audioCtrl.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (audio.paused) {
+                    let playPromise = audio.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(err => {
+                            console.log('播放失败，请检查音频文件是否存在。', err);
+                            alert('音频播放失败。请确保以下两个文件与HTML在同一文件夹内：\n1. 陶典,Hanser,花玲 - 未来再见.mp3\n2. 陶典,Hanser,花玲 - 未来再见.flac');
+                        });
+                    }
+                }
+                toggleMute();
+            });
+
+            // 启动
+            initBlack();
+        })();
+    </script>
+    <!-- 
+        使用说明：
+        1. 将本HTML文件、两个音频文件（MP3/FLAC）、十张图片（1.png ~ 10.png）放在同一个文件夹中。
+        2. 双击HTML文件打开，点击屏幕开始。
+        3. 交互顺序：
+           - 欢迎（无图）
+           - 风离（文字）→ 风离+图(1,2) → 黎离（文字）→ 黎离+图(3,4) → 🍏（文字）→ 🍏+图(5,6) → 沅采（文字）→ 沅采+图(7,8) → 烟霞（文字）→ 烟霞+图(9,10) → 新年快乐（无图）→ 循环回欢迎
+        4. 音频初始静音，点击右下角喇叭开启声音。
+    -->
+</body>
+</html>
